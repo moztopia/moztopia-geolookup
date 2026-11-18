@@ -1,0 +1,36 @@
+# by-dolly
+body:
+  - type: markdown
+    attributes:
+      value: |
+        <img src="https://raw.githubusercontent.com/moztopia/moztopia-geolookup/main/logo.png" alt="Moztopia GeoLookup" width="160">
+
+        Ask the community about using GeoLookup. A small example helps people answer.
+        [Community guide](https://github.com/moztopia/moztopia-geolookup/wiki/Community)
+  - type: textarea
+    id: question
+    attributes:
+      label: What are you trying to do?
+      description: Describe the outcome you need and the question you want answered.
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: Package, Laravel and PHP versions
+      description: Include the versions you use, or say if you have not installed the package yet.
+  - type: textarea
+    id: context
+    attributes:
+      label: What have you tried?
+      description: Explain what you expected, what happened and any relevant configuration.
+  - type: textarea
+    id: example
+    attributes:
+      label: Minimal example or relevant error
+      description: Use a small synthetic example. Remove credentials and personal location data.
+  - type: textarea
+    id: data-context
+    attributes:
+      label: Dataset context, if relevant
+      description: Country, dataset source/version, installed administrative depth and whether boundaries are present.

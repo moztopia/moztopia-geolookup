@@ -28,13 +28,15 @@ categories:
   - slug: polls
     format: poll
     form: null
+# Profile-specific bootstrap record; clear published_url when adapting another repo.
 opening_post:
   title: Welcome to GeoLookup Discussions — start here
   category_slug: announcements
   body_file: .github/discussion-drafts/welcome.md
-  approval: pending-owner-review
+  approval: required-before-publication
+  published_url: https://github.com/moztopia/moztopia-geolookup/discussions/27
 replication:
-  approval: pending-owner-acceptance-of-geolookup
+  approval: requires-owner-acceptance-of-geolookup
   targets:
     - moztopia/moztopia-access
     - moztopia/moztopia-notifications

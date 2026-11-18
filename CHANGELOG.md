@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.0
+
+- Serve OpenAPI YAML directly from the configured API root, including its trailing-slash form.
+- Preserve the explicit `openapi.yaml` path, opt-in routing and host middleware.
+
 ## 0.2.0
 
 - Add the shared local PHP lookup service and optional versioned JSON HTTP endpoints.

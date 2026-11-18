@@ -9,6 +9,7 @@ Route::prefix(config('geolookup.http.prefix', 'api/geolookup/v1'))
     ->middleware(config('geolookup.http.middleware', ['api']))
     ->name('geolookup.')
     ->group(function (): void {
+        Route::get('/', [GeoLookupController::class, 'openapi'])->name('root');
         Route::get('search', [GeoLookupController::class, 'search'])->name('search');
         Route::get('reverse', [GeoLookupController::class, 'reverse'])->name('reverse');
         Route::get('places/{id}', [GeoLookupController::class, 'place'])->name('place');

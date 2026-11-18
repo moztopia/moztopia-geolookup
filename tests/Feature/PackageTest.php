@@ -9,6 +9,7 @@ it('boots in a consuming Laravel application without exposing routes or touching
         ->and(config('geolookup.http.enabled'))->toBeFalse()
         ->and(config('geolookup.database'))->toBe(storage_path('app/geolookup/locations.sqlite'))
         ->and(file_exists(config('geolookup.database')))->toBeFalse();
+    $this->get('/api/geolookup/v1')->assertNotFound();
 });
 
 it('publishes configuration through its own publication tag', function (): void {

@@ -93,13 +93,24 @@ it('rejects a malformed stored place payload without emitting an invalid success
     $this->get('/api/geolookup/v1/places/'.Locations::id(4))->assertStatus(503)->assertJsonPath('error.code', 'dataset_unavailable');
 });
 
-it('serves the contract without data and honors the host prefix and middleware', function (): void {
+it('discovers the contract at the API root without a dataset', function (string $suffix): void {
+    unlink($this->datasetPath);
+    $response = $this->get('/api/geolookup/v1'.$suffix)->assertOk()->assertHeader('Content-Type', 'application/yaml');
+    $alias = $this->get('/api/geolookup/v1/openapi.yaml')->assertOk();
+    expect($response->getContent())->toBe($alias->getContent());
+    $document = Yaml::parse($response->getContent());
+    expect($document['paths']['/']['get']['operationId'])->toBe('discoverApi')
+        ->and($document['paths']['/openapi.yaml']['get']['operationId'])->toBe('getOpenApi')
+        ->and(file_exists($this->datasetPath))->toBeFalse();
+})->with(['', '/']);
+
+it('serves the contract without data and honors the host prefix and middleware', function (string $suffix): void {
     config(['geolookup.http.prefix' => 'internal/geo', 'geolookup.http.middleware' => [HostMiddleware::class]]);
     $this->app->register(GeoLookupServiceProvider::class, true);
     unlink($this->datasetPath);
-    $this->get('/internal/geo/openapi.yaml')->assertForbidden();
-    $response = $this->withHeader('X-Host-Token', 'fixture-token')->get('/internal/geo/openapi.yaml')->assertOk();
+    $this->get('/internal/geo'.$suffix)->assertForbidden();
+    $response = $this->withHeader('X-Host-Token', 'fixture-token')->get('/internal/geo'.$suffix)->assertOk();
     $document = Yaml::parse($response->getContent());
     expect($document['servers'][0]['url'])->toBe('/internal/geo')
         ->and($document['paths'])->toHaveKeys(['/search', '/reverse', '/places/{id}']);
-});
+})->with(['', '/openapi.yaml']);

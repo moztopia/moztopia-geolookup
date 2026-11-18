@@ -10,6 +10,8 @@ require $consumer.'/vendor/autoload.php';
 $app = require $consumer.'/bootstrap/app.php';
 $kernel = $app->make(Kernel::class);
 $paths = [
+    '',
+    '/',
     '/search?q=Thaiburi%2C%20Thailand&types=subdistrict',
     '/search?q=Bethel%20Acres%2C%20OK',
     '/places/00000000-0000-4000-8000-000000000004/ancestors',
@@ -22,7 +24,12 @@ foreach ($paths as $path) {
     if ($response->getStatusCode() !== 200) {
         throw new RuntimeException('Consumer HTTP lookup failed for '.$path.': '.$response->getContent());
     }
-    if ($path !== '/openapi.yaml') {
+    if (in_array($path, ['', '/', '/openapi.yaml'], true)) {
+        if (!str_starts_with((string) $response->headers->get('Content-Type'), 'application/yaml')
+            || !str_contains($response->getContent(), 'operationId: discoverApi')) {
+            throw new RuntimeException('Consumer API discovery did not return the OpenAPI YAML.');
+        }
+    } else {
         $payload = json_decode($response->getContent(), true, flags: JSON_THROW_ON_ERROR);
         if (!isset($payload['data'][0])) {
             throw new RuntimeException('Expected the explicit test fixture result for '.$path);

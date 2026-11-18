@@ -1,7 +1,7 @@
 openapi: 3.0.4
 info:
   title: GeoLookup
-  version: 0.2.0
+  version: 0.3.0
   contact:
     name: Moztopia
     url: https://moztopia.com
@@ -18,6 +18,16 @@ servers:
 tags:
   - name: Locations
 paths:
+  /:
+    get:
+      operationId: discoverApi
+      summary: Discover the OpenAPI contract at the API root
+      responses:
+        '200':
+          description: The same YAML as openapi.yaml, with the configured relative route prefix.
+          content:
+            application/yaml:
+              schema: {type: string}
   /search:
     get:
       operationId: searchPlaces

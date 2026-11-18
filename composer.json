@@ -4,12 +4,20 @@
     "type": "library",
     "license": "Apache-2.0",
     "require": {
-        "php": "~8.4.27 || ~8.5.12",
+        "ext-mbstring": "*",
         "illuminate/contracts": "^12.0 || ^13.0",
-        "illuminate/support": "^12.0 || ^13.0"
+        "illuminate/http": "^12.0 || ^13.0",
+        "illuminate/routing": "^12.0 || ^13.0",
+        "illuminate/support": "^12.0 || ^13.0",
+        "illuminate/validation": "^12.0 || ^13.0",
+        "php": "~8.4.27 || ~8.5.12",
+        "symfony/polyfill-intl-normalizer": "^1.33",
+        "symfony/yaml": "^7.2 || ^8.0"
     },
     "require-dev": {
         "laravel/pint": "^1.25",
+        "league/openapi-psr7-validator": "^0.22",
+        "nyholm/psr7": "^1.8",
         "orchestra/testbench": "^10.0 || ^11.0",
         "pestphp/pest": "^4.0"
     },
@@ -45,5 +53,8 @@
     },
     "minimum-stability": "stable",
     "prefer-stable": true,
-    "homepage": "https://moztopia.com"
+    "homepage": "https://moztopia.com",
+    "suggest": {
+        "ext-pdo_sqlite": "Required for local SQLite lookup and dataset provisioning, with SQLite FTS5 support."
+    }
 }

@@ -1,0 +1,7 @@
+pubName: moztopia_geolookup
+pubVersion: 0.2.0
+pubDescription: GeoLookup HTTP client for a consuming Laravel application
+pubHomepage: https://moztopia.com
+pubAuthor: Moztopia
+gitUserId: moztopia
+gitRepoId: moztopia-geolookup

@@ -1,0 +1,351 @@
+openapi: 3.0.4
+info:
+  title: GeoLookup
+  version: 0.2.0
+  contact:
+    name: Moztopia
+    url: https://moztopia.com
+  description: >-
+    Local administrative location lookup hosted by a consuming Laravel application.
+    Data coverage depends on the installed dataset. No UI, live geolocation service
+    or automatic data download is provided. Authentication, CORS and middleware
+    are configured by the host application. Source-code and dataset licenses differ.
+  license:
+    name: Apache-2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+servers:
+  - url: /api/geolookup/v1
+tags:
+  - name: Locations
+paths:
+  /search:
+    get:
+      operationId: searchPlaces
+      tags: [Locations]
+      summary: Search progressively typed names, administrative context or postal codes
+      description: >-
+        All query fragments must match indexed name/alias/ancestor context, or
+        the compact query must match a directly associated postal code prefix.
+        Case, separators and Latin accents are folded. Exact postal codes rank
+        first, postal prefixes second, exact names third, remaining name/context
+        matches last. Ties sort by name and UUID. Postal codes are strings;
+        leading zeros are significant. No fuzzy spelling correction is promised.
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: {type: string, minLength: 1, maxLength: 200}
+          examples:
+            hometown: {value: 'Bethel Acres, OK'}
+            subdistrict: {value: 'Thaiburi, Thailand'}
+            postal: {value: '80160'}
+        - name: within
+          in: query
+          description: Restrict to this place and its administrative descendants.
+          schema: {$ref: '#/components/schemas/PlaceId'}
+        - name: country
+          in: query
+          schema: {type: string, pattern: '^[A-Z]{2}$'}
+        - name: types
+          in: query
+          description: Comma-separated country-specific types, at most 20.
+          schema: {type: string, maxLength: 1300}
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Ranked matching locations, possibly empty.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/SearchPage'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/InvalidRequest'}
+        '503': {$ref: '#/components/responses/DatasetUnavailable'}
+  /places/{id}:
+    get:
+      operationId: getPlace
+      tags: [Locations]
+      summary: Retrieve a selectable place at any administrative depth
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Place detail including its display hierarchy.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                additionalProperties: false
+                properties:
+                  data: {$ref: '#/components/schemas/Place'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/InvalidRequest'}
+        '503': {$ref: '#/components/responses/DatasetUnavailable'}
+  /places/{id}/children:
+    get:
+      operationId: getPlaceChildren
+      tags: [Locations]
+      summary: List direct administrative children
+      parameters:
+        - $ref: '#/components/parameters/Id'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: A deterministic page; leaves have no children.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PlacePage'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/InvalidRequest'}
+        '503': {$ref: '#/components/responses/DatasetUnavailable'}
+  /places/{id}/ancestors:
+    get:
+      operationId: getPlaceAncestors
+      tags: [Locations]
+      summary: List country-to-parent ancestors excluding the selected place
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Ordered ancestors; a root has none.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                additionalProperties: false
+                properties:
+                  data:
+                    type: array
+                    items: {$ref: '#/components/schemas/Place'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/InvalidRequest'}
+        '503': {$ref: '#/components/responses/DatasetUnavailable'}
+  /reverse:
+    get:
+      operationId: reverseLookup
+      tags: [Locations]
+      summary: Resolve coordinates using installed boundary polygons
+      description: >-
+        Returns deepest containing branches with administrative ancestors attached.
+        Exterior edges are included and holes excluded. Multiple branches can be
+        returned on shared boundaries or where administrative areas overlap.
+        No nearest-centre fallback is used. Empty results mean no installed
+        boundary matched, not proof the coordinates lack an administrative area.
+        Stop types unavailable in a matched chain return the deepest match and
+        complete=false. Boundary provenance/quality is the dataset producer's responsibility.
+      parameters:
+        - name: latitude
+          in: query
+          required: true
+          schema: {type: number, format: double, minimum: -90, maximum: 90}
+        - name: longitude
+          in: query
+          required: true
+          schema: {type: number, format: double, minimum: -180, maximum: 180}
+        - name: stop_at
+          in: query
+          description: Select this type from each containing branch, for example country.
+          schema: {type: string, pattern: '^[a-z][a-z0-9_]{0,63}$'}
+      responses:
+        '200':
+          description: Boundary-based resolutions, including any ambiguity.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ReverseResult'}
+        '422': {$ref: '#/components/responses/InvalidRequest'}
+        '503': {$ref: '#/components/responses/DatasetUnavailable'}
+  /openapi.yaml:
+    get:
+      operationId: getOpenApi
+      summary: Retrieve this contract with the configured relative route prefix
+      responses:
+        '200':
+          description: Available without installing a dataset; host middleware still applies.
+          content:
+            application/yaml:
+              schema: {type: string}
+components:
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema: {$ref: '#/components/schemas/PlaceId'}
+    Limit:
+      name: limit
+      in: query
+      schema: {type: integer, minimum: 1, maximum: 100, default: 10}
+    Offset:
+      name: offset
+      in: query
+      schema: {type: integer, format: int64, minimum: 0, maximum: 9223372036854775707, default: 0}
+  responses:
+    NotFound:
+      description: Requested place or within scope is absent from the installed dataset.
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/ErrorResponse'}
+    InvalidRequest:
+      description: Invalid query, identifier or pagination parameters.
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/ErrorResponse'}
+    DatasetUnavailable:
+      description: No compatible readable local dataset; no internal paths or SQL exposed.
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/ErrorResponse'}
+  schemas:
+    PlaceId:
+      type: string
+      format: uuid
+      description: Stable package-owned UUIDv4 or UUIDv7, independent of external IDs.
+    PlaceSummary:
+      type: object
+      required: [id, name, type, local_type]
+      additionalProperties: false
+      properties:
+        id: {$ref: '#/components/schemas/PlaceId'}
+        name: {type: string}
+        type: {type: string, description: Country-specific administrative type; not a fixed global enum.}
+        local_type: {type: string, nullable: true}
+    Place:
+      type: object
+      required: [id, name, type, country_code, parent_id, local_type, aliases, postal_codes, source, relationships, label, hierarchy, has_children]
+      additionalProperties: false
+      properties:
+        id: {$ref: '#/components/schemas/PlaceId'}
+        name: {type: string}
+        type: {type: string}
+        country_code: {type: string, pattern: '^[A-Z]{2}$'}
+        parent_id: {type: string, format: uuid, nullable: true}
+        local_type: {type: string, nullable: true}
+        aliases:
+          type: array
+          items: {type: string}
+        postal_codes:
+          type: array
+          items: {type: string}
+        source:
+          type: object
+          nullable: true
+          description: Source identifiers/provenance, never a replacement for the owned UUID.
+          additionalProperties: true
+        relationships:
+          type: array
+          description: Additional geographic relationships independent of the display parent.
+          items:
+            type: object
+            required: [type, place_id]
+            additionalProperties: false
+            properties:
+              type: {type: string}
+              place_id: {$ref: '#/components/schemas/PlaceId'}
+        label: {type: string}
+        hierarchy:
+          type: array
+          description: Country-to-selected-place display hierarchy, including self.
+          items: {$ref: '#/components/schemas/PlaceSummary'}
+        has_children: {type: boolean}
+        match:
+          $ref: '#/components/schemas/MatchMetadata'
+    MatchMetadata:
+      type: object
+      description: Present on search results only.
+      required: [field, kind]
+      additionalProperties: false
+      properties:
+        field:
+          type: string
+          enum: [postal_code, name]
+          x-enum-varnames: [postalCode, placeName]
+        kind: {type: string, enum: [exact, partial]}
+    SearchPlace:
+      allOf:
+        - $ref: '#/components/schemas/Place'
+        - type: object
+          required: [match]
+          properties:
+            match:
+              $ref: '#/components/schemas/MatchMetadata'
+    PageMeta:
+      type: object
+      required: [limit, offset, has_more, next_offset]
+      additionalProperties: false
+      properties:
+        limit: {type: integer, minimum: 1, maximum: 100}
+        offset: {type: integer, minimum: 0}
+        has_more: {type: boolean}
+        next_offset: {type: integer, minimum: 0, nullable: true}
+    PlacePage:
+      type: object
+      required: [data, meta]
+      additionalProperties: false
+      properties:
+        data:
+          type: array
+          maxItems: 100
+          items: {$ref: '#/components/schemas/Place'}
+        meta: {$ref: '#/components/schemas/PageMeta'}
+    SearchPage:
+      type: object
+      required: [data, meta]
+      additionalProperties: false
+      properties:
+        data:
+          type: array
+          maxItems: 100
+          items: {$ref: '#/components/schemas/SearchPlace'}
+        meta: {$ref: '#/components/schemas/PageMeta'}
+    ReverseResult:
+      type: object
+      required: [data, meta]
+      additionalProperties: false
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            required: [place, resolution]
+            additionalProperties: false
+            properties:
+              place: {$ref: '#/components/schemas/Place'}
+              resolution:
+                type: object
+                required: [method, matched_type, resolved_type, requested_type, complete, reason]
+                additionalProperties: false
+                properties:
+                  method: {type: string, enum: [boundary]}
+                  matched_type: {type: string}
+                  resolved_type: {type: string}
+                  requested_type: {type: string, nullable: true}
+                  complete: {type: boolean}
+                  reason: {type: string, nullable: true, enum: [requested_type_unavailable, null]}
+        meta:
+          type: object
+          required: [latitude, longitude, ambiguous]
+          additionalProperties: false
+          properties:
+            latitude: {type: number, format: double}
+            longitude: {type: number, format: double}
+            ambiguous: {type: boolean}
+    ErrorResponse:
+      type: object
+      required: [error]
+      additionalProperties: false
+      properties:
+        error:
+          type: object
+          required: [code, message, fields]
+          additionalProperties: false
+          properties:
+            code: {type: string, enum: [validation_failed, place_not_found, dataset_unavailable]}
+            message: {type: string}
+            fields:
+              type: object
+              additionalProperties:
+                type: array
+                items: {type: string}

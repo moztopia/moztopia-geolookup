@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.9.0 — Leif
+
+- Prepare the first owner-requested `main` release with the persistent release name Leif.
+- Align the source, OpenAPI and SDK preset versions at 0.9.0; lookup behavior remains compatible with 0.3.0.
+- Promote the existing Laravel backend, API-root discovery and wiki documentation. National data packs, the country installer and the Artisan SDK wrapper remain follow-on work.
+
 ## 0.3.0
 
 - Serve OpenAPI YAML directly from the configured API root, including its trailing-slash form.

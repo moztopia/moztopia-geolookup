@@ -1,5 +1,5 @@
 pubName: moztopia_geolookup
-pubVersion: 0.3.0
+pubVersion: 0.9.0
 pubDescription: GeoLookup HTTP client for a consuming Laravel application
 pubHomepage: https://moztopia.com
 pubAuthor: Moztopia

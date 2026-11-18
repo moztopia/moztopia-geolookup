@@ -1,0 +1,35 @@
+# by-dolly
+body:
+  - type: markdown
+    attributes:
+      value: |
+        <img src="https://raw.githubusercontent.com/moztopia/moztopia-geolookup/main/logo.png" alt="Moztopia GeoLookup" width="160">
+
+        Explore a proposal before committing to implementation.
+        [Community guide](https://github.com/moztopia/moztopia-geolookup/wiki/Community)
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      description: Describe who encounters it and why existing behavior is insufficient.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What do you propose?
+      description: Describe the expected developer experience. A short usage example is welcome.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives and tradeoffs
+      description: Include options you considered and potential effects on existing consumers.
+  - type: textarea
+    id: decision
+    attributes:
+      label: What feedback or decision would help?
+      description: Ask a focused question that can move the proposal toward a decision.
+    validations:
+      required: true

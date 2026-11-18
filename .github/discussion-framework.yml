@@ -1,0 +1,42 @@
+# Maintainer reference; GitHub reads DISCUSSION_TEMPLATE files, not this manifest.
+# Resolve category IDs in each target repository. Never copy IDs between repos.
+# by-dolly
+framework_version: 1
+profile:
+  name: GeoLookup
+  package: moztopia/geolookup
+  repository: moztopia/moztopia-geolookup
+  logo: https://raw.githubusercontent.com/moztopia/moztopia-geolookup/main/logo.png
+  guide: https://github.com/moztopia/moztopia-geolookup/wiki/Community
+  documentation: https://github.com/moztopia/moztopia-geolookup/wiki
+categories:
+  - slug: announcements
+    format: announcement
+    form: .github/DISCUSSION_TEMPLATE/announcements.yml
+  - slug: q-a
+    format: question-answer
+    form: .github/DISCUSSION_TEMPLATE/q-a.yml
+  - slug: ideas
+    format: open-ended
+    form: .github/DISCUSSION_TEMPLATE/ideas.yml
+  - slug: show-and-tell
+    format: open-ended
+    form: .github/DISCUSSION_TEMPLATE/show-and-tell.yml
+  - slug: general
+    format: open-ended
+    form: .github/DISCUSSION_TEMPLATE/general.yml
+  - slug: polls
+    format: poll
+    form: null
+# Profile-specific bootstrap record; clear published_url when adapting another repo.
+opening_post:
+  title: Welcome to GeoLookup Discussions — start here
+  category_slug: announcements
+  body_file: .github/discussion-drafts/welcome.md
+  approval: required-before-publication
+  published_url: https://github.com/moztopia/moztopia-geolookup/discussions/27
+replication:
+  approval: requires-owner-acceptance-of-geolookup
+  targets:
+    - moztopia/moztopia-access
+    - moztopia/moztopia-notifications

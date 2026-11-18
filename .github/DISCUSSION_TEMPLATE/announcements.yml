@@ -1,0 +1,28 @@
+# by-dolly
+body:
+  - type: markdown
+    attributes:
+      value: |
+        <img src="https://raw.githubusercontent.com/moztopia/moztopia-geolookup/main/logo.png" alt="Moztopia GeoLookup" width="160">
+
+        Maintainer guidance and community notices. Link to existing documentation or release notes.
+        [Community guide](https://github.com/moztopia/moztopia-geolookup/wiki/Community)
+  - type: input
+    id: summary
+    attributes:
+      label: Summary
+      description: What should community members know?
+    validations:
+      required: true
+  - type: textarea
+    id: notice
+    attributes:
+      label: Notice and requested action
+      description: Explain who is affected, what happens next and any feedback needed.
+    validations:
+      required: true
+  - type: textarea
+    id: references
+    attributes:
+      label: Authoritative links
+      description: Link the relevant guide, proposal or release record instead of copying it.

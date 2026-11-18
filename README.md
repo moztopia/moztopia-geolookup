@@ -10,5 +10,6 @@ Detailed documentation is maintained in the [wiki](https://github.com/moztopia/m
 - [Client SDK generation](https://github.com/moztopia/moztopia-geolookup/wiki/Client-SDKs)
 - [Development and validation](https://github.com/moztopia/moztopia-geolookup/wiki/Development)
 - [Data coverage, licensing and roadmap](https://github.com/moztopia/moztopia-geolookup/wiki/Data-and-Licensing)
+- [Community guide](https://github.com/moztopia/moztopia-geolookup/wiki/Community) · [Discussions](https://github.com/moztopia/moztopia-geolookup/discussions)
 
 By [Moztopia](https://moztopia.com). Source license: [Apache-2.0](LICENSE); preserve [NOTICE](NOTICE).
